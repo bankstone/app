@@ -4,22 +4,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>דיגמי</title>
-<meta name="theme-color" content="#287334">
+<meta name="theme-color" content="#FFFFFF">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="דיגמי">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
-/* מעטפת האפליקציה: מסך מלא, ובתוכו אפליקציית דיגמי מגוגל. מסך פתיחה ירוק עם האייקון עד שהיא נטענת. */
-:root{--g:#287334;--ink:#fff;color-scheme:light}
+/* מעטפת האפליקציה: מסך מלא, ובתוכו אפליקציית דיגמי מגוגל. מסך פתיחה לבן עם הלוגואים המקוריים עד שהיא נטענת (26/10, אלעד). */
+:root{--g:#287334;--bg:#FFFFFF;--ink:#287334;color-scheme:light}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--g);overflow:hidden}
+html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
 #app{position:fixed;top:env(safe-area-inset-top,0px);right:0;bottom:env(safe-area-inset-bottom,0px);left:0;width:100%;height:calc(100% - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));border:0;background:#F3F6F0}
-#splash{position:fixed;inset:0;display:grid;place-items:center;align-content:center;gap:18px;background:var(--g);color:var(--ink);font:700 17px "Segoe UI",Arial,sans-serif;text-align:center;padding:24px;transition:opacity .3s}
-#splash img{width:132px;height:132px;border-radius:28px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+#splash{position:fixed;inset:0;display:grid;place-items:center;align-content:center;gap:22px;background:var(--bg);color:var(--ink);font:700 17px "Segoe UI",Arial,sans-serif;text-align:center;padding:24px;transition:opacity .3s}
+.brands{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap;max-width:92vw}
+.brands .bk{height:110px;width:auto;max-width:56vw;object-fit:contain}
+.brands .dg{height:60px;width:auto;max-width:34vw;object-fit:contain}
+.brands .div{width:1px;align-self:stretch;background:rgba(40,115,52,.35)}
+@media (max-width:420px){.brands .bk{height:84px}.brands .dg{height:44px}}
 #splash.off{opacity:0;pointer-events:none}
 .dots::after{content:"";animation:d 1.2s steps(4) infinite}
 @keyframes d{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
@@ -32,7 +36,7 @@ html,body{margin:0;height:100%;background:var(--g);overflow:hidden}
 </head>
 <body>
 <div id="splash" role="status" aria-live="polite">
-  <img src="icon-192.png" alt="">
+  <div class="brands"><img class="bk" src="logo-bank.png" alt="בנק האבן והשיש"><span class="div"></span><img class="dg" src="logo-digmi.png" alt="דיגמי"></div>
   <div id="wait">טוען את דיגמי<span class="dots"></span></div>
   <div id="msg" hidden></div>
   <button id="retry" type="button" hidden>לנסות שוב</button>
@@ -51,6 +55,33 @@ html,body{margin:0;height:100%;background:var(--g);overflow:hidden}
   f.src=url;document.body.appendChild(f);
   rb.addEventListener('click',function(){location.reload();});
   window.addEventListener('online',function(){if(!loaded)location.reload();});
+  /* 26/10/2026: הקלטה על גבי הדף. גוגל לא נותנת מיקרופון בתוך דף של Apps Script, אבל לאפליקציה הזו מותר.
+     הדף "הזמנת הובלה" מבקש להתחיל/לעצור, האפליקציה מקליטה ומחזירה את הקובץ – רק לדפים של גוגל. */
+  var GOOG=/^https:\/\/([a-z0-9-]+\.)*(google\.com|googleusercontent\.com)$/;
+  function deep(w,m,d){try{w.postMessage(m,'*');}catch(e){}if(d>=4)return;try{for(var i=0;i<w.length;i++)deep(w[i],m,d+1);}catch(e){}}
+  var canMic=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+  function hello(){if(f.contentWindow)deep(f.contentWindow,{digmiHost:'app',mic:canMic},0);}
+  f.addEventListener('load',function(){hello();setTimeout(hello,1500);setTimeout(hello,4000);});
+  setInterval(hello,5000);
+  var stream=null,rec=null,chunks=[],t0=0,mt='';
+  function pick(){if(!MediaRecorder.isTypeSupported)return '';var c=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus','audio/aac'];for(var i=0;i<c.length;i++)if(MediaRecorder.isTypeSupported(c[i]))return c[i];return '';}
+  function reply(m){if(f.contentWindow)deep(f.contentWindow,m,0);}
+  function begin(){chunks=[];mt=pick();
+    try{rec=mt?new MediaRecorder(stream,{mimeType:mt}):new MediaRecorder(stream);}catch(e){reply({digmiRecState:'err',why:'recorder'});return;}
+    rec.ondataavailable=function(ev){if(ev.data&&ev.data.size)chunks.push(ev.data);};
+    rec.onstop=function(){var ty=(rec.mimeType||mt||'audio/webm'),sec=(Date.now()-t0)/1000,b=new Blob(chunks,{type:ty}),r=new FileReader();
+      r.onload=function(){reply({digmiRecDone:{b64:String(r.result).split(',')[1]||'',mime:ty,sec:sec}});};r.readAsDataURL(b);
+      try{stream.getTracks().forEach(function(t){t.stop();});}catch(e){}stream=null;};   /* משחררים את המיקרופון בין הקלטות */
+    t0=Date.now();rec.start(1000);reply({digmiRecState:'on'});}
+  window.addEventListener('message',function(e){
+    var d=e.data;if(!d||typeof d!=='object'||!d.digmiRec||!GOOG.test(e.origin))return;
+    if(d.digmiRec==='start'){
+      if(rec&&rec.state==='recording')return;
+      if(!canMic){reply({digmiRecState:'err',why:'nomic'});return;}
+      navigator.mediaDevices.getUserMedia({audio:true}).then(function(s){stream=s;begin();})
+        .catch(function(err){reply({digmiRecState:'err',why:(err&&err.name)||'denied'});});
+    } else if(d.digmiRec==='stop'){if(rec&&rec.state!=='inactive')rec.stop();}
+  });
   if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}
 })();
 </script>
