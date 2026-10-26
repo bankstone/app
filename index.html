@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>דיגמי</title>
+<meta name="theme-color" content="#287334">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="דיגמי">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+/* מעטפת האפליקציה: מסך מלא, ובתוכו אפליקציית דיגמי מגוגל. מסך פתיחה ירוק עם האייקון עד שהיא נטענת. */
+:root{--g:#287334;--ink:#fff;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--g);overflow:hidden}
+#app{position:fixed;top:env(safe-area-inset-top,0px);right:0;bottom:env(safe-area-inset-bottom,0px);left:0;width:100%;height:calc(100% - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));border:0;background:#F3F6F0}
+#splash{position:fixed;inset:0;display:grid;place-items:center;align-content:center;gap:18px;background:var(--g);color:var(--ink);font:700 17px "Segoe UI",Arial,sans-serif;text-align:center;padding:24px;transition:opacity .3s}
+#splash img{width:132px;height:132px;border-radius:28px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+#splash.off{opacity:0;pointer-events:none}
+.dots::after{content:"";animation:d 1.2s steps(4) infinite}
+@keyframes d{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+@media (prefers-reduced-motion:reduce){#splash{transition:none}.dots::after{animation:none;content:"…"}}
+#msg[hidden]{display:none}
+#msg{max-width:320px;line-height:1.5;font-weight:600}
+#retry{margin-top:6px;border:0;border-radius:12px;padding:11px 20px;font:800 16px Arial,sans-serif;background:#E3A900;color:#2A2000;cursor:pointer}
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+<div id="splash" role="status" aria-live="polite">
+  <img src="icon-192.png" alt="">
+  <div id="wait">טוען את דיגמי<span class="dots"></span></div>
+  <div id="msg" hidden></div>
+  <button id="retry" type="button" hidden>לנסות שוב</button>
+</div>
+<script>
+(function(){
+  var url=String(window.DIGMI_URL||"");
+  var sp=document.getElementById('splash'),msg=document.getElementById('msg'),wait=document.getElementById('wait'),rb=document.getElementById('retry');
+  function fail(t){wait.hidden=true;msg.textContent=t;msg.hidden=false;rb.hidden=false;}
+  if(!/^https:\/\/script\.google\.com\/(macros|a\/macros\/[\w.-]+)\/s\/[\w-]{20,}\/exec$/.test(url)){fail('חסר הקישור של דיגמי בקובץ config.js');return;}
+  var f=document.createElement('iframe');f.id='app';f.title='דיגמי';
+  f.setAttribute('allow','microphone; camera; clipboard-write; fullscreen');
+  var loaded=false;
+  f.addEventListener('load',function(){loaded=true;sp.classList.add('off');});
+  setTimeout(function(){if(!loaded&&!navigator.onLine)fail('אין חיבור לאינטרנט. כשהקליטה תחזור – לנסות שוב.');},8000);
+  f.src=url;document.body.appendChild(f);
+  rb.addEventListener('click',function(){location.reload();});
+  window.addEventListener('online',function(){if(!loaded)location.reload();});
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}
+})();
+</script>
+</body>
+</html>
