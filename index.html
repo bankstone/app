@@ -50,7 +50,12 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
   var f=document.createElement('iframe');f.id='app';f.title='דיגמי';
   f.setAttribute('allow','microphone; camera; clipboard-write; fullscreen');
   var loaded=false;
-  f.addEventListener('load',function(){loaded=true;sp.classList.add('off');});
+  /* 27/10/2026: מסך הפתיחה נשאר עד שהדף הראשון באמת מוכן, ומופיע שוב בכל יציאה וכניסה */
+  var shownAt=Date.now();function hideSp(){var w=Math.max(0,1000-(Date.now()-shownAt));setTimeout(function(){if(document.visibilityState!=='hidden')sp.classList.add('off');},w);}
+  function showSp(){shownAt=Date.now();sp.classList.remove('off');}
+  f.addEventListener('load',function(){loaded=true;setTimeout(hideSp,15000);});
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){showSp();}else if(loaded){shownAt=Date.now();hideSp();}});
+  window.addEventListener('pageshow',function(ev){if(ev.persisted&&loaded){showSp();hideSp();}});
   setTimeout(function(){if(!loaded&&!navigator.onLine)fail('אין חיבור לאינטרנט. כשהקליטה תחזור – לנסות שוב.');},8000);
   f.src=url;document.body.appendChild(f);
   rb.addEventListener('click',function(){location.reload();});
@@ -74,7 +79,8 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
       try{stream.getTracks().forEach(function(t){t.stop();});}catch(e){}stream=null;};   /* משחררים את המיקרופון בין הקלטות */
     t0=Date.now();rec.start(1000);reply({digmiRecState:'on'});}
   window.addEventListener('message',function(e){
-    var d=e.data;if(d&&typeof d==='object'&&d.digmiAsk&&GOOG.test(e.origin)){try{e.source.postMessage({digmiHost:'app',mic:canMic},e.origin);}catch(_){}return;}
+    var d=e.data;if(d&&typeof d==='object'&&d.digmiReady&&GOOG.test(e.origin)){hideSp();return;}
+    if(d&&typeof d==='object'&&d.digmiAsk&&GOOG.test(e.origin)){try{e.source.postMessage({digmiHost:'app',mic:canMic},e.origin);}catch(_){}return;}
     if(!d||typeof d!=='object'||!d.digmiRec||!GOOG.test(e.origin))return;
     if(d.digmiRec==='start'){
       if(rec&&rec.state==='recording')return;
