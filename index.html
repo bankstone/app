@@ -58,7 +58,7 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
   /* 26/10/2026: הקלטה על גבי הדף. גוגל לא נותנת מיקרופון בתוך דף של Apps Script, אבל לאפליקציה הזו מותר.
      הדף "הזמנת הובלה" מבקש להתחיל/לעצור, האפליקציה מקליטה ומחזירה את הקובץ – רק לדפים של גוגל. */
   var GOOG=/^https:\/\/([a-z0-9-]+\.)*(google\.com|googleusercontent\.com)$/;
-  function deep(w,m,d){try{w.postMessage(m,'*');}catch(e){}if(d>=4)return;try{for(var i=0;i<w.length;i++)deep(w[i],m,d+1);}catch(e){}}
+  function deep(w,m,d){try{w.postMessage(m,'*');}catch(e){}if(d>=8)return;try{for(var i=0;i<w.length;i++)deep(w[i],m,d+1);}catch(e){}}
   var canMic=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
   function hello(){if(f.contentWindow)deep(f.contentWindow,{digmiHost:'app',mic:canMic},0);}
   f.addEventListener('load',function(){hello();setTimeout(hello,1500);setTimeout(hello,4000);});
@@ -74,7 +74,8 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
       try{stream.getTracks().forEach(function(t){t.stop();});}catch(e){}stream=null;};   /* משחררים את המיקרופון בין הקלטות */
     t0=Date.now();rec.start(1000);reply({digmiRecState:'on'});}
   window.addEventListener('message',function(e){
-    var d=e.data;if(!d||typeof d!=='object'||!d.digmiRec||!GOOG.test(e.origin))return;
+    var d=e.data;if(d&&typeof d==='object'&&d.digmiAsk&&GOOG.test(e.origin)){try{e.source.postMessage({digmiHost:'app',mic:canMic},e.origin);}catch(_){}return;}
+    if(!d||typeof d!=='object'||!d.digmiRec||!GOOG.test(e.origin))return;
     if(d.digmiRec==='start'){
       if(rec&&rec.state==='recording')return;
       if(!canMic){reply({digmiRecState:'err',why:'nomic'});return;}
