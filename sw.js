@@ -1,4 +1,4 @@
-var C = "digmi-shell-v3";
+var C = "digmi-shell-v4";
 var FILES = ["./", "index.html", "config.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "logo-bank.png", "logo-digmi.png"];
 self.addEventListener("install", function (e) { e.waitUntil(caches.open(C).then(function (c) { return c.addAll(FILES); }).then(function () { return self.skipWaiting(); })); });
 self.addEventListener("activate", function (e) {
