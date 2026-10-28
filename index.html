@@ -31,6 +31,24 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
 @keyframes d{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
 @media (prefers-reduced-motion:reduce){#splash{transition:none}.dots::after{animation:none;content:"…"}.pop.go{animation:none;opacity:1;transform:none}}
 #msg[hidden]{display:none}
+#gate[hidden]{display:none}
+/* 28/10/2026: מסך כניסה – מכשיר חדש מקליד קוד פעם אחת (או מקבל הוראות התקנה) */
+#gate{position:fixed;inset:0;z-index:20;background:#fff;overflow:auto;display:grid;place-items:center;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));font:16px "Segoe UI",Arial,sans-serif;color:#16231A;direction:rtl}
+#gate .in{width:100%;max-width:380px;display:grid;gap:16px;justify-items:center;text-align:center}
+#gate img{width:min(40vw,150px);height:auto}
+#gate h1{margin:0;font-size:22px;color:#287334}
+#gate p{margin:0;line-height:1.55;color:#4A574D}
+#gcode{width:100%;font:800 30px Consolas,monospace;letter-spacing:.35em;text-align:center;direction:ltr;padding:12px;border:2px solid #CFDCCB;border-radius:14px;outline:none}
+#gcode:focus{border-color:#287334}
+.gbtn{width:100%;border:0;border-radius:999px;padding:14px;font:800 18px Arial,sans-serif;background:#287334;color:#fff;cursor:pointer}
+.gbtn:disabled{opacity:.6}
+#gmsg{min-height:22px;font-weight:700;color:#B4412F}
+.steps{width:100%;display:grid;gap:10px;text-align:right;margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;background:#F4F6F1;border-radius:12px;padding:12px 14px 12px 14px;display:flex;gap:12px;align-items:center;line-height:1.45}
+.steps li::before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:#287334;color:#fff;font-weight:800;display:grid;place-items:center}
+.steps b{color:#287334}
+.ico{display:inline-block;font-size:20px;vertical-align:middle}
+
 #msg{max-width:320px;line-height:1.5;font-weight:600}
 #retry{margin-top:6px;border:0;border-radius:12px;padding:11px 20px;font:800 16px Arial,sans-serif;background:#E3A900;color:#2A2000;cursor:pointer}
 </style>
@@ -43,6 +61,7 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
   <div id="msg" hidden></div>
   <button id="retry" type="button" hidden>לנסות שוב</button>
 </div>
+<div id="gate" hidden><div class="in" id="gin"></div></div>
 <script>
 (function(){
   var url=String(window.DIGMI_URL||"");
@@ -69,9 +88,57 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
   document.addEventListener('resume',onBack);
   window.addEventListener('pageshow',function(ev){if(ev.persisted){away=true;onBack();}});
   setTimeout(function(){if(!loaded&&!navigator.onLine)fail('אין חיבור לאינטרנט. כשהקליטה תחזור – לנסות שוב.');},8000);
-  f.src=url;document.body.appendChild(f);
+  /* 28/10/2026: כניסה רק ממכשיר רשום. המפתח של המכשיר שמור כאן, ונשלח לגוגל בכל כניסה. */
+  var LSK='digmi-dev-v1',tok='',gated=false,lastChk=0,instEv=null;
+  function lsGet(){try{return localStorage.getItem(LSK)||'';}catch(e){return '';}}
+  function lsSet(v){try{if(v)localStorage.setItem(LSK,v);else localStorage.removeItem(LSK);}catch(e){}}
+  tok=lsGet();
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();instEv=e;var b=document.getElementById('ginst');if(b)b.hidden=false;});
+  function installed(){try{return ['standalone','fullscreen','minimal-ui','window-controls-overlay'].some(function(m){return matchMedia('(display-mode: '+m+')').matches;})||navigator.standalone===true;}catch(e){return false;}}
+  function kind(){var u=navigator.userAgent||'';
+    if(/iPhone|iPad|iPod/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1))return 'ios';
+    if(/Android/.test(u))return /SamsungBrowser/.test(u)?'samsung':(/Chrome\//.test(u)&&!/EdgA|OPR|Firefox/.test(u)?'android':'android-other');
+    return 'pc';}
+  var LOGO=pop.src,G=document.getElementById('gate'),GI=document.getElementById('gin');
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function gate(){gated=true;try{f.remove();}catch(e){}sp.classList.add('off');G.hidden=false;
+    var head='<img alt="בנק האבן והשיש · דיגמי" src="'+LOGO+'">';
+    if(installed()){
+      GI.innerHTML=head+'<h1>כניסה ראשונה במכשיר הזה</h1><p>הקלידו את הקוד בן 6 הספרות שקיבלתם. מקלידים רק פעם אחת.</p>'+
+        '<input id="gcode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="קוד כניסה">'+
+        '<button class="gbtn" id="ggo" type="button">כניסה</button><div id="gmsg" role="status"></div><p style="font-size:14px">אין לכם קוד? בקשו מאלעד בבנק האבן והשיש.</p>';
+      var inp=document.getElementById('gcode'),go=document.getElementById('ggo'),gm=document.getElementById('gmsg');
+      inp.addEventListener('input',function(){inp.value=inp.value.replace(/\D/g,'').slice(0,6);gm.textContent='';});
+      inp.addEventListener('keydown',function(e){if(e.key==='Enter')go.click();});
+      go.addEventListener('click',function(){var c=inp.value;if(c.length!==6){gm.textContent='הקוד הוא 6 ספרות.';return;}
+        go.disabled=true;go.textContent='בודק…';
+        fetch(url+'?act='+c,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+          if(j&&j.ok&&j.d){lsSet(j.d);go.textContent='✓ המכשיר נרשם';setTimeout(function(){location.reload();},700);}
+          else{go.disabled=false;go.textContent='כניסה';gm.textContent=(j&&j.why)||'הקוד לא התקבל. נסו שוב.';}
+        }).catch(function(){go.disabled=false;go.textContent='כניסה';gm.textContent='אין חיבור. בדקו את האינטרנט ונסו שוב.';});});
+      setTimeout(function(){try{inp.focus();}catch(e){}},300);
+      return;}
+    var k=kind(),st='',btn='<button class="gbtn" id="ginst" type="button"'+(instEv?'':' hidden')+'>📲 התקן את האפליקציה</button>';
+    if(k==='ios')st='<li><span>לחצו על <b>שיתוף</b> <span class="ico">⬆️</span> (בתחתית המסך או למעלה)</span></li><li><span>גללו ובחרו <b>הוספה למסך הבית</b> <span class="ico">➕</span></span></li><li><span>לחצו <b>הוסף</b> למעלה</span></li>';
+    else if(k==='android')st='<li><span>לחצו על <b>התקן את האפליקציה</b> למעלה, או על התפריט <b>⋮</b> בפינה ← <b>התקנת האפליקציה</b> / <b>הוספה למסך הבית</b></span></li><li><span>אשרו <b>התקנה</b></span></li>';
+    else if(k==='samsung')st='<li><span>לחצו על התפריט <b>☰</b> למטה</span></li><li><span>בחרו <b>הוספת דף אל</b> ← <b>מסך הבית</b></span></li><li><span>אשרו <b>הוסף</b></span></li>';
+    else if(k==='android-other')st='<li><span>פתחו את הקישור הזה בדפדפן <b>Chrome</b></span></li><li><span>תפריט <b>⋮</b> ← <b>התקנת האפליקציה</b></span></li>';
+    else st='<li><span>פתחו את הקישור הזה ב-<b>Chrome</b> או ב-<b>Edge</b></span></li><li><span>לחצו על סמל ההתקנה <span class="ico">🖥️</span> בצד שורת הכתובת, או על <b>התקן את האפליקציה</b> למעלה</span></li><li><span>אשרו <b>התקנה</b> – האפליקציה תיפתח בחלון משלה</span></li>';
+    GI.innerHTML=head+'<h1>קודם מתקינים את האפליקציה</h1><p>האפליקציה של דיגמי נפתחת רק מהאייקון.</p>'+btn+'<ol class="steps">'+st+
+      '<li><span>פתחו את האפליקציה מהאייקון החדש והקלידו את הקוד שקיבלתם</span></li></ol>';
+    var ib=document.getElementById('ginst');
+    ib.addEventListener('click',function(){if(!instEv)return;instEv.prompt();instEv.userChoice.then(function(){instEv=null;ib.hidden=true;}).catch(function(){});});}
+  function check(){if(gated)return;lastChk=Date.now();
+    fetch(url+'?chk=1'+(tok?'&d='+encodeURIComponent(tok):''),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+      if(!j)return;if(tok&&!j.known)lsSet('');   /* מפתח שנחסם או שוחרר – נמחק */
+      if(j.ok===false)gate();
+    }).catch(function(){});}
+  window.matchMedia&&matchMedia('(display-mode: standalone)').addEventListener&&matchMedia('(display-mode: standalone)').addEventListener('change',function(){if(gated)gate();});
+  f.src=url+(tok?'?d='+encodeURIComponent(tok):'');document.body.appendChild(f);
+  check();
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&Date.now()-lastChk>60000)check();});
   rb.addEventListener('click',function(){location.reload();});
-  window.addEventListener('online',function(){if(!loaded)location.reload();});
+  window.addEventListener('online',function(){if(!loaded&&!gated)location.reload();});
   /* 26/10/2026: הקלטה על גבי הדף. גוגל לא נותנת מיקרופון בתוך דף של Apps Script, אבל לאפליקציה הזו מותר.
      הדף "הזמנת הובלה" מבקש להתחיל/לעצור, האפליקציה מקליטה ומחזירה את הקובץ – רק לדפים של גוגל. */
   var GOOG=/^https:\/\/([a-z0-9-]+\.)*(google\.com|googleusercontent\.com)$/;
