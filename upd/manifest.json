@@ -1,11 +1,21 @@
 {
- "id": "v25-2910b",
- "desc": "אבנים גדולות בדף הבית",
+ "id": "v26-2910c",
+ "desc": "סריקת חוזים (שרת + דף שליטה) + העתקת דוחות המחשב לענן",
  "files": [
   {
-   "name": "קוד.gs",
-   "sha": "fdbfb0296f30bc8aaabd93f2e10b0489cb0872459132c63528fd7dce32a26e5f",
-   "path": "v25-2910b-2cee8a076a.enc"
+   "name": "Scan.gs",
+   "sha": "d4ee6762d2e8372845b477af6407638f93a8b08ec7cdac179b38b1c237b7f7b3",
+   "path": "v26-2910c-0b3e72bbcc.enc"
+  },
+  {
+   "name": "Devices.gs",
+   "sha": "94723a6d3de1dbc5845e1bdc4d15e1a2f89661779df36d2dfac08199cf8fa1ab",
+   "path": "v26-2910c-d264aa782d.enc"
+  },
+  {
+   "name": "Updater.gs",
+   "sha": "f714b446e31f45255ad478d330fcc1454bc2887cfba12b91ee93c2d59b88e322",
+   "path": "v26-2910c-45ec627782.enc"
   }
  ]
 }
