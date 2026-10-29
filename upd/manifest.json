@@ -1,16 +1,16 @@
 {
- "id": "v31-2910h",
- "desc": "סריקת חוזה בתחילת ההזמנה + כרטיס אבן מצומצם",
+ "id": "v32-2910i",
+ "desc": "הפעלת נעילה + רשימת קודים",
  "files": [
   {
-   "name": "order.html",
-   "sha": "c9fbddf3bcdad1b86e1eef04f1da27aae79b3846f7494d5f562aee6224d9fabc",
-   "path": "v31-2910h-44f51b8541.enc"
+   "name": "Devices.gs",
+   "sha": "5d359adc90be37d886bcb47abb134d701e1291774ff87aca7071f8cce17a1e73",
+   "path": "v32-2910i-d264aa782d.enc"
   },
   {
-   "name": "קוד.gs",
-   "sha": "ef62ac9206931a31cacd1596a9cd1680c56d1b85f213574f95a02a5987df63b0",
-   "path": "v31-2910h-2cee8a076a.enc"
+   "name": "Updater.gs",
+   "sha": "47548a7be4c00ec1a005c790a3d513e637415c0c4cd50394043499d882f9c6b9",
+   "path": "v32-2910i-45ec627782.enc"
   }
  ]
 }
