@@ -1,21 +1,16 @@
 {
- "id": "v26-2910c",
- "desc": "סריקת חוזים (שרת + דף שליטה) + העתקת דוחות המחשב לענן",
+ "id": "v27-2910d",
+ "desc": "סריקה בלי מפתח (קריאת טקסט של גוגל) + בדיקה עצמית",
  "files": [
   {
    "name": "Scan.gs",
-   "sha": "d4ee6762d2e8372845b477af6407638f93a8b08ec7cdac179b38b1c237b7f7b3",
-   "path": "v26-2910c-0b3e72bbcc.enc"
-  },
-  {
-   "name": "Devices.gs",
-   "sha": "94723a6d3de1dbc5845e1bdc4d15e1a2f89661779df36d2dfac08199cf8fa1ab",
-   "path": "v26-2910c-d264aa782d.enc"
+   "sha": "7026652847d2ca781ab388ec87d9f6476cb7b517f486aee8316fb368c0a44c6e",
+   "path": "v27-2910d-0b3e72bbcc.enc"
   },
   {
    "name": "Updater.gs",
-   "sha": "f714b446e31f45255ad478d330fcc1454bc2887cfba12b91ee93c2d59b88e322",
-   "path": "v26-2910c-45ec627782.enc"
+   "sha": "1baa9562bc9fa5850787f39867db236ed9b3c40d3eb3cea710a49115bcfc6020",
+   "path": "v27-2910d-45ec627782.enc"
   }
  ]
 }
