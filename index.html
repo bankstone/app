@@ -113,13 +113,17 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
       var inp=document.getElementById('gcode'),em=document.getElementById('gmail'),go=document.getElementById('ggo'),gm=document.getElementById('gmsg');
       em.addEventListener('input',function(){gm.textContent='';});
       em.addEventListener('keydown',function(e){if(e.key==='Enter')inp.focus();});
-      inp.addEventListener('input',function(){inp.value=inp.value.replace(/\D/g,'').slice(0,6);gm.textContent='';});
+      /* 29/10/2026: מנהלים (אלעד, אליאור) – בלי קוד. במכשיר שבו נפתחה אפליקציית השליטה הסיסמה כבר שמורה; אחרת השדה הופך ל"סיסמת ניהול" */
+      var adminMode=false,AK='';try{AK=localStorage.getItem('digmi-admin-key')||'';}catch(e){}
+      function toAdmin(){adminMode=true;inp.type='password';inp.removeAttribute('maxlength');inp.setAttribute('inputmode','text');inp.setAttribute('autocomplete','off');inp.placeholder='סיסמת ניהול';inp.style.letterSpacing='normal';inp.style.fontSize='18px';inp.value='';try{inp.focus();}catch(e){}}
+      inp.addEventListener('input',function(){if(!adminMode)inp.value=inp.value.replace(/\D/g,'').slice(0,6);gm.textContent='';});
       inp.addEventListener('keydown',function(e){if(e.key==='Enter')go.click();});
-      go.addEventListener('click',function(){var c=inp.value,m=em.value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){gm.textContent='כתבו את כתובת המייל שלכם.';return;}if(c.length!==6){gm.textContent='הקוד הוא 6 ספרות.';return;}
+      go.addEventListener('click',function(){var c=inp.value,m=em.value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){gm.textContent='כתבו את כתובת המייל שלכם.';return;}if(!adminMode&&c.length!==6&&c.length!==0){gm.textContent='הקוד הוא 6 ספרות.';return;}if(adminMode&&!c.trim()){gm.textContent='הקלד את סיסמת הניהול.';return;}
+        var ak=adminMode?c.trim():AK;
         go.disabled=true;go.textContent='בודק…';
-        fetch(url+'?act='+c+'&e='+encodeURIComponent(m)+'&k='+kind(),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+        fetch(url+'?act='+(adminMode?'adm':(c||'adm'))+'&e='+encodeURIComponent(m)+'&k='+kind()+(ak?'&ak='+encodeURIComponent(ak):''),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
           if(j&&j.ok&&j.d){lsSet(j.d);go.textContent='✓ המכשיר נרשם';setTimeout(function(){location.reload();},700);}
-          else{go.disabled=false;go.textContent='כניסה';gm.textContent=(j&&j.why)||'הקוד לא התקבל. נסו שוב.';}
+          else{go.disabled=false;go.textContent='כניסה';if(j&&j.admin&&!adminMode)toAdmin();gm.textContent=(j&&j.why)||'הקוד לא התקבל. נסו שוב.';}
         }).catch(function(){go.disabled=false;go.textContent='כניסה';gm.textContent='אין חיבור. בדקו את האינטרנט ונסו שוב.';});});
       setTimeout(function(){try{em.focus();}catch(e){}},300);
       return;}
