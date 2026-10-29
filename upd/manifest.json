@@ -1,16 +1,11 @@
 {
- "id": "v21-2910a",
- "desc": "גרסה 21: מנהלים בלי קוד (אלעד, אליאור), מנשה ברשימה; ארכיון – חיפוש על כל השורה",
+ "id": "v22-2910a",
+ "desc": "גרסה 22: המעדכן שומר עותק של הקוד החי בתיקייה המשותפת",
  "files": [
   {
-   "name": "Devices.gs",
-   "sha": "8aaec76982de3b2ff41c46354ef36e0eaaeeed45f50267a67978bf37f0cd05fc",
-   "path": "v21-2910a-d264aa782d.enc"
-  },
-  {
-   "name": "tm.html",
-   "sha": "921541b342c4c1c9801545eb8f52f6b06c41cf867a4b0de46bff08632d840057",
-   "path": "v21-2910a-0cf07c694d.enc"
+   "name": "Updater.gs",
+   "sha": "9d99f4222780eef2c403faf289ef196044dcec72ec29672bd3b803dc2e48fcd8",
+   "path": "v22-2910a-45ec627782.enc"
   }
  ]
 }
