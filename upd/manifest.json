@@ -1,11 +1,11 @@
 {
- "id": "v29-2910f",
- "desc": "קריאת טקסט: כמה דרכים",
+ "id": "v30-2910g",
+ "desc": "סריקה: קבלן נכון (לא דיגמי), הערות בלי כפילות",
  "files": [
   {
    "name": "Scan.gs",
-   "sha": "cfb199dd966e31badfc11b5b78339be2a4e20954c439ec4ec47ecd040896d905",
-   "path": "v29-2910f-0b3e72bbcc.enc"
+   "sha": "e020c3a8aa5c24a5d6a3856f8a2ebd551558e6847f6cf02b350045d6f19d11c9",
+   "path": "v30-2910g-0b3e72bbcc.enc"
   }
  ]
 }
