@@ -1,11 +1,11 @@
 {
- "id": "v28-2910e",
- "desc": "עדכון שכבר הוחל לא חוזר (הגנה מהחזרת קוד אחורה)",
+ "id": "v29-2910f",
+ "desc": "קריאת טקסט: כמה דרכים",
  "files": [
   {
-   "name": "Updater.gs",
-   "sha": "bc65d425bdd51067d9e4599d068b3dd80df6ba5635d83334384910e74a6c39eb",
-   "path": "v28-2910e-45ec627782.enc"
+   "name": "Scan.gs",
+   "sha": "cfb199dd966e31badfc11b5b78339be2a4e20954c439ec4ec47ecd040896d905",
+   "path": "v29-2910f-0b3e72bbcc.enc"
   }
  ]
 }
