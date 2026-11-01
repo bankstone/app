@@ -1,11 +1,11 @@
 {
- "id": "v37-0111e",
- "desc": "שליפת גרסאות קודמות",
+ "id": "v38-0111f",
+ "desc": "מולה וויט: רוחב 40 בלוח ההזמנות",
  "files": [
   {
-   "name": "Devices.gs",
-   "sha": "8b7da5582865e7f23265e0db2931f0414a04b488404faf2d37a47bee2dac3fa1",
-   "path": "v37-0111e-d264aa782d.enc"
+   "name": "order.html",
+   "sha": "968d32afd90b6a6a86b8c80794dd010cfdf12d81270b0f5f04a87bd825634509",
+   "path": "v38-0111f-44f51b8541.enc"
   }
  ]
 }
