@@ -1,11 +1,16 @@
 {
- "id": "v35-0111c",
- "desc": "שלב 1: הזמנה לפי חוזה / לפי צורך",
+ "id": "v36-0111d",
+ "desc": "יומן סריקה + שלב 1 לפי חוזה/צורך",
  "files": [
   {
    "name": "order.html",
    "sha": "2472b5037c72c160c3cfbc8024e8ef164dbd1d07034a76092bcc58028a608e15",
-   "path": "v35-0111c-44f51b8541.enc"
+   "path": "v36-0111d-44f51b8541.enc"
+  },
+  {
+   "name": "Scan.gs",
+   "sha": "c552c672100ac882683234edfaf3b0a495c3f6d77a2fb2bb3236865e9871e6f9",
+   "path": "v36-0111d-0b3e72bbcc.enc"
   }
  ]
 }
