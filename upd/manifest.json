@@ -1,11 +1,11 @@
 {
- "id": "v39-0111g",
- "desc": "קופינג: כל הרוחבים (כולל 25) + מולה 40",
+ "id": "v40-0111h",
+ "desc": "מעקב מצב המלאי באפליקציה",
  "files": [
   {
-   "name": "order.html",
-   "sha": "880e78bc87d5b012c6392056c7ef4191a36eaf64978c0db00ebece3ce669e2c2",
-   "path": "v39-0111g-44f51b8541.enc"
+   "name": "Updater.gs",
+   "sha": "7e6499a7f7f118d62ebcc5d5f323f29e394f1bb656799b6adfb93bfe32068427",
+   "path": "v40-0111h-45ec627782.enc"
   }
  ]
 }
