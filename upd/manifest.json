@@ -1,31 +1,11 @@
 {
- "id": "v33-0111a",
- "desc": "לשונית חוזים + מיילים במצב חי",
+ "id": "v34-0111b",
+ "desc": "עודכן = הבדיקה השעתית האחרונה",
  "files": [
   {
-   "name": "Devices.gs",
-   "sha": "3d09125fa709c36f7d688bfccc5d44251278cc556ae2e629e7acff6b6be6f499",
-   "path": "v33-0111a-d264aa782d.enc"
-  },
-  {
-   "name": "Scan.gs",
-   "sha": "12ccac288f671eded0fd06a348c01107cf6d5ef98baddb793099afc6db9ee9ae",
-   "path": "v33-0111a-0b3e72bbcc.enc"
-  },
-  {
    "name": "קוד.gs",
-   "sha": "b5e56787e9a78756e67413d388fffcc3463a639291ab54489da178804e822d5a",
-   "path": "v33-0111a-2cee8a076a.enc"
-  },
-  {
-   "name": "shell.html",
-   "sha": "774e59de3983caaf09d9140fc0c8765351f3c928237d68b8865774c6e838e80b",
-   "path": "v33-0111a-a1155dfb2a.enc"
-  },
-  {
-   "name": "contracts.html",
-   "sha": "e9b8baef349a7d28ce1cec17494a7d21b36d788087f3bb0b5a9b4a7b43cda66d",
-   "path": "v33-0111a-e5e9e1459b.enc"
+   "sha": "088e321ea6dfc947284213a7b3fac7cde1279fea613c4595b43f498557f43a23",
+   "path": "v34-0111b-2cee8a076a.enc"
   }
  ]
 }
