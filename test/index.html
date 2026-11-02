@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#287334">
+<title>דיגמי – ניסוי</title>
+<!-- 02/11/2026: מעטפת לאפליקציית הניסוי בטאבלט בלבד (bankstone.github.io/app/test/).
+     לא נוגעת במעטפת של מנשה (bankstone.github.io/app/). התפקיד: להחזיק את האפליקציה במסך מלא
+     ולהקליט בשבילה – גוגל לא מאפשר מיקרופון בתוך המסגרת של Apps Script. אותו פרוטוקול כמו במעטפת החיה:
+     digmiAsk → digmiHost · digmiRec start/stop → digmiRecState / digmiRecDone. -->
+<style>
+html,body{margin:0;height:100%;background:#287334;overflow:hidden}
+iframe{border:0;width:100%;height:100%;display:block;background:#F3F6F0}
+.tag{position:fixed;left:8px;bottom:8px;z-index:2;background:#b4231f;color:#fff;font:700 12px Arial,sans-serif;padding:4px 9px;border-radius:999px;opacity:.85;pointer-events:none}
+</style>
+</head>
+<body>
+<iframe id="f" allow="microphone; camera; clipboard-write; fullscreen"
+  src="https://script.google.com/macros/s/AKfycbzfWX4kQt5b1Vuf-1rV6czXbsGewjzxueVizAwxIK60VOBstzw8a2teRnyTCn5q_fc/exec"></iframe>
+<div class="tag">ניסוי</div>
+<script>
+(function(){
+  var GOOG=/^https:\/\/([a-z0-9-]+\.)*(google\.com|googleusercontent\.com)$/;
+  var canMic=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+  var stream=null, rec=null, chunks=[], t0=0, src=null, org='*';
+  function reply(m){ try{ src.postMessage(m, org); }catch(e){} }
+  function mime(){ if(!window.MediaRecorder||!MediaRecorder.isTypeSupported) return ''; var c=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus','audio/aac']; for(var i=0;i<c.length;i++) if(MediaRecorder.isTypeSupported(c[i])) return c[i]; return ''; }
+  function begin(){
+    var mt=mime(); chunks=[];
+    try{ rec=mt?new MediaRecorder(stream,{mimeType:mt}):new MediaRecorder(stream); }catch(e){ reply({digmiRecState:'err',why:'recorder'}); return; }
+    rec.ondataavailable=function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
+    rec.onstop=function(){ var ty=rec.mimeType||mt||'audio/webm', b=new Blob(chunks,{type:ty}), sec=Math.round((Date.now()-t0)/1000), r=new FileReader();
+      r.onload=function(){ reply({digmiRecDone:{b64:String(r.result).split(',')[1]||'', mime:ty, sec:sec}}); }; r.readAsDataURL(b); };
+    t0=Date.now(); rec.start(1000); reply({digmiRecState:'on'});
+  }
+  window.addEventListener('message', function(e){
+    var d=e.data; if(!d||typeof d!=='object'||!GOOG.test(e.origin)) return;
+    if(d.digmiAsk){ try{ e.source.postMessage({digmiHost:'app', mic:canMic}, e.origin); }catch(_){} return; }
+    if(!d.digmiRec) return;
+    src=e.source; org=e.origin;
+    if(d.digmiRec==='start'){
+      if(!canMic){ reply({digmiRecState:'err',why:'nomic'}); return; }
+      if(stream){ begin(); return; }
+      navigator.mediaDevices.getUserMedia({audio:true}).then(function(s){ stream=s; begin(); }).catch(function(err){ reply({digmiRecState:'err',why:(err&&err.name)||'denied'}); });
+    } else if(d.digmiRec==='stop'){ if(rec&&rec.state!=='inactive') rec.stop(); }
+  });
+})();
+</script>
+</body>
+</html>
