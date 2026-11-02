@@ -31,6 +31,7 @@ iframe{border:0;width:100%;height:100%;display:block;background:#F3F6F0}
     try{ rec=mt?new MediaRecorder(stream,{mimeType:mt}):new MediaRecorder(stream); }catch(e){ reply({digmiRecState:'err',why:'recorder'}); return; }
     rec.ondataavailable=function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
     rec.onstop=function(){ var ty=rec.mimeType||mt||'audio/webm', b=new Blob(chunks,{type:ty}), sec=Math.round((Date.now()-t0)/1000), r=new FileReader();
+      try{ stream.getTracks().forEach(function(t){ t.stop(); }); }catch(_){} stream=null;   // המיקרופון נסגר אחרי כל הקלטה
       r.onload=function(){ reply({digmiRecDone:{b64:String(r.result).split(',')[1]||'', mime:ty, sec:sec}}); }; r.readAsDataURL(b); };
     t0=Date.now(); rec.start(1000); reply({digmiRecState:'on'});
   }
