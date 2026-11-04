@@ -41,9 +41,13 @@ iframe{border:0;width:100%;height:100%;display:block;background:#F3F6F0}
   var SNK='digmi-snap-test-v1', f=document.getElementById('f'), ready=false, sn=null;
   function snapGet(){ try{ var j=JSON.parse(localStorage.getItem(SNK)||''); return (j&&j.html)?j:null; }catch(e){ return null; } }
   function snapShow(){ if(ready||sn) return; var s=snapGet(); if(!s) return;
-    sn=document.createElement('iframe'); sn.id='snap'; sn.title='דיגמי'; sn.setAttribute('sandbox','allow-scripts'); sn.srcdoc=s.html; document.body.appendChild(sn); }
-  function snapHide(){ if(sn){ try{ sn.remove(); }catch(e){} sn=null; } }
-  if(navigator.onLine===false) snapShow();
+    sn=document.createElement('iframe'); sn.id='snap'; sn.title='דיגמי'; sn.setAttribute('sandbox','allow-scripts'); sn.srcdoc=s.html; document.body.appendChild(sn);
+    if(navigator.onLine!==false){ pill=document.createElement('div'); pill.textContent='⟳ מתעדכן…'; pill.style.cssText='position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:3;background:rgba(26,80,1,.92);color:#fff;font:700 15px Arial,sans-serif;padding:7px 16px;border-radius:999px;box-shadow:0 2px 10px rgba(0,0,0,.25);pointer-events:none'; document.body.appendChild(pill); } }
+  function snapHide(){ if(sn){ try{ sn.remove(); }catch(e){} sn=null; } if(pill){ try{ pill.remove(); }catch(e){} pill=null; } }
+  /* 04/11/2026 (אלעד: "האפליקציה מאוד איטית בהעלאה"): פתיחה מיידית – העותק האחרון מוצג מיד (גם עם קליטה), עם "מתעדכן…",
+     והאפליקציה החיה מחליפה אותו ברגע שהיא מוכנה. בלי קליטה – כמו קודם, עם הפס הצהוב. */
+  var pill=null;
+  snapShow();
   setTimeout(function(){ if(!ready&&navigator.onLine===false) snapShow(); }, 6000);
   window.addEventListener('offline', function(){ if(!ready) snapShow(); });
   window.addEventListener('online', function(){ if(!ready){ f.src=f.src; } });
