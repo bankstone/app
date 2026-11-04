@@ -32,6 +32,11 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
 @media (prefers-reduced-motion:reduce){#splash{transition:none}.dots::after{animation:none;content:"…"}.pop.go{animation:none;opacity:1;transform:none}}
 #msg[hidden]{display:none}
 #gate[hidden]{display:none}
+/* 01/11/2026 (אלעד: "כל פעם שפותחים זה מראה את הדף הלבן"): דף הבית מהכניסה הקודמת מוצג מיד אחרי הלוגו, עד שהדף החי מוכן */
+#snap{position:fixed;top:env(safe-area-inset-top,0px);right:0;bottom:env(safe-area-inset-bottom,0px);left:0;width:100%;height:calc(100% - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));border:0;background:#F3F6F0;z-index:5}
+#snap[hidden]{display:none}
+#snapbar{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:6;background:#E3A900;color:#2A2000;font:700 13px "Segoe UI",Arial,sans-serif;text-align:center;padding:5px 10px}
+#snapbar[hidden]{display:none}
 /* 28/10/2026: מסך כניסה – מכשיר חדש מקליד קוד פעם אחת (או מקבל הוראות התקנה) */
 #gate{position:fixed;inset:0;z-index:20;background:#fff;overflow:auto;display:grid;place-items:center;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));font:16px "Segoe UI",Arial,sans-serif;color:#16231A;direction:rtl}
 #gate .in{width:100%;max-width:380px;display:grid;gap:16px;justify-items:center;text-align:center}
@@ -64,6 +69,7 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
   <button id="retry" type="button" hidden>לנסות שוב</button>
 </div>
 <div id="gate" hidden><div class="in" id="gin"></div></div>
+<div id="snapbar" hidden>מציג את המצב מהכניסה הקודמת · מתעדכן<span class="dots"></span></div>
 <script>
 (function(){
   var url=String(window.DIGMI_URL||"");
@@ -77,8 +83,16 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
      בפתיחה: נשאר עד שהדף הראשון באמת מוכן (לפחות 1.2 שניות). בחזרה: 1.2 שניות ויורד. */
   var pop=document.getElementById('pop'),MIN=1200,shownAt=Date.now(),hideT=0,waitT=0;
   function anim(){pop.classList.remove('go');void pop.offsetWidth;pop.classList.add('go');}
+  var ready=false,sn=null,pendingGo='',SNK='digmi-snap-v1';
+  function snapGet(){try{var j=JSON.parse(localStorage.getItem(SNK)||'');return (j&&j.html)?j:null;}catch(e){return null;}}
+  function snapShow(){if(ready||sn||gated)return;var s=snapGet();if(!s)return;
+    sn=document.createElement('iframe');sn.id='snap';sn.title='דיגמי';sn.setAttribute('sandbox','allow-scripts');sn.srcdoc=s.html;document.body.appendChild(sn);
+    document.getElementById('snapbar').hidden=!navigator.onLine;}   /* 03/11/2026: בלי קליטה – הפס הצהוב של האפליקציה עצמה ("אין קליטה · מוצג המידע מ-…") */
+  function snapHide(){if(sn){try{sn.remove();}catch(e){}sn=null;}document.getElementById('snapbar').hidden=true;
+    if(pendingGo&&f.contentWindow){var g=pendingGo;pendingGo='';setTimeout(function(){deep(f.contentWindow,{digmiGo:g},0);},300);}}
   function hideSp(){clearTimeout(hideT);var w=Math.max(0,MIN-(Date.now()-shownAt));
-    hideT=setTimeout(function(){if(document.visibilityState!=='hidden'){sp.classList.add('off');wait.classList.remove('on');}},w);}
+    hideT=setTimeout(function(){if(document.visibilityState!=='hidden'){if(!ready)snapShow();if(ready||sn){sp.classList.add('off');wait.classList.remove('on');}}},w);}
+  setTimeout(function(){if(!ready&&!loaded)hideSp();},MIN);   /* הלוגו קפץ – אם יש דף שמור, מציגים אותו במקום להמשיך בלבן */
   function showSp(){clearTimeout(hideT);shownAt=Date.now();sp.classList.remove('off');anim();}
   waitT=setTimeout(function(){if(!loaded)wait.classList.add('on');},1800);   /* "טוען את האפליקציה" רק כשבאמת לוקח זמן */
   f.addEventListener('load',function(){loaded=true;setTimeout(hideSp,15000);});
@@ -89,7 +103,7 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
   document.addEventListener('freeze',onAway);
   document.addEventListener('resume',onBack);
   window.addEventListener('pageshow',function(ev){if(ev.persisted){away=true;onBack();}});
-  setTimeout(function(){if(!loaded&&!navigator.onLine)fail('אין חיבור לאינטרנט. כשהקליטה תחזור – לנסות שוב.');},8000);
+  setTimeout(function(){if(!loaded&&!navigator.onLine&&!sn)fail('אין חיבור לאינטרנט. כשהקליטה תחזור – לנסות שוב.');},8000);   /* 03/11/2026: יש עותק שמור – מציגים אותו, לא הודעת שגיאה */
   /* 28/10/2026: כניסה רק ממכשיר רשום. המפתח של המכשיר שמור כאן, ונשלח לגוגל בכל כניסה. */
   var LSK='digmi-dev-v1',tok='',gated=false,lastChk=0,instEv=null;
   function lsGet(){try{return localStorage.getItem(LSK)||'';}catch(e){return '';}}
@@ -147,7 +161,8 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
   check();
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&Date.now()-lastChk>60000)check();});
   rb.addEventListener('click',function(){location.reload();});
-  window.addEventListener('online',function(){if(!loaded&&!gated)location.reload();});
+  window.addEventListener('online',function(){if(gated)return;if(!loaded)location.reload();else if(!ready){document.getElementById('snapbar').hidden=!sn;try{f.src=f.src;}catch(e){}}});   /* 03/11/2026: הקליטה חזרה – טוענים את האפליקציה החיה מחדש */
+  window.addEventListener('offline',function(){document.getElementById('snapbar').hidden=true;if(!ready)snapShow();});
   /* 26/10/2026: הקלטה על גבי הדף. גוגל לא נותנת מיקרופון בתוך דף של Apps Script, אבל לאפליקציה הזו מותר.
      הדף "הזמנת הובלה" מבקש להתחיל/לעצור, האפליקציה מקליטה ומחזירה את הקובץ – רק לדפים של גוגל. */
   var GOOG=/^https:\/\/([a-z0-9-]+\.)*(google\.com|googleusercontent\.com)$/;
@@ -167,7 +182,9 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
       try{stream.getTracks().forEach(function(t){t.stop();});}catch(e){}stream=null;};   /* משחררים את המיקרופון בין הקלטות */
     t0=Date.now();rec.start(1000);reply({digmiRecState:'on'});}
   window.addEventListener('message',function(e){
-    var d=e.data;if(d&&typeof d==='object'&&d.digmiReady&&GOOG.test(e.origin)){hideSp();return;}
+    var d=e.data;if(d&&typeof d==='object'&&d.digmiReady&&GOOG.test(e.origin)){ready=true;snapHide();hideSp();return;}
+    if(d&&typeof d==='object'&&typeof d.digmiSnap==='string'&&GOOG.test(e.origin)){if(d.digmiSnap.length<600000){try{localStorage.setItem(SNK,JSON.stringify({html:d.digmiSnap,at:Date.now()}));}catch(_){}}return;}
+    if(d&&typeof d==='object'&&sn&&e.source===sn.contentWindow){if(d.digmiGo)pendingGo=String(d.digmiGo);return;}   /* נגיעה בדף השמור – תתבצע כשהחי מוכן */
     if(d&&typeof d==='object'&&d.digmiAsk&&GOOG.test(e.origin)){try{e.source.postMessage({digmiHost:'app',mic:canMic},e.origin);}catch(_){}return;}
     if(!d||typeof d!=='object'||!d.digmiRec||!GOOG.test(e.origin))return;
     if(d.digmiRec==='start'){
